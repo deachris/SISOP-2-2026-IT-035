@@ -84,4 +84,49 @@ Prosesnya sama seperti child process pertama, tetapi di sini perintah yang digun
 }
 ```
 
-Pada program di atas, perintah yang digunakan adalah
+Pada program di atas, perintah yang digunakan adalah dengan menjalankan perintah shell untuk mencari teks "Belum Lunas" di dalam file `buku_hutang.csv`. Hasilnya dimasukkan ke dalam file `daftar_penunggak.txt` dengan menggunakan perintah `>`.
+
+4. Untuk child process keempat adalah mengompres brankas ke dalam file zip `rahasia_muthu.zip`. Program harus menunggu proses sampai selesai.
+```bash
+ child_id = fork();
+  if (child_id == 0) {
+     char *argv[] = {"zip", "-r", "rahasia_muthu.zip", "brankas_kedai", NULL};
+     execv("/usr/bin/zip", argv);
+  }
+  else
+  {
+  wait(&status);
+  if (WIFEXITED(status) == 0 || WEXITSTATUS(status) != 0) {
+     printf("[ERROR] Aiyaa! Proses gagal, file atau folder tidak ditemukan.\n");
+     exit(EXIT_FAILURE);
+
+  }
+
+  printf("[INFO] Fuhh, selamat! Buku hutang dan daftar penagihan berhasil diamankan.\n");
+  }
+  return 0;
+}
+```
+Pada kode di atas, perintah yang digunakan adalah `zip -r` untuk mengompres semua isi folder `brankas_kedai` ke dalam zip.
+Setelah semua proses berhasil dijalankan, maka program akan mengeluarkan output tanda berhasil.
+
+### Soal 2
+**The World Never Stops, Even When You Feel Tired**
+
+1. Langkah pertama adalah membuat program c dengan nama file `contract_daemon.c`.
+2. 
+```bash
+int running = 1;
+const char *contract_path = "/home/ubuntu/SISOP-2-2026-IT-035/soal_2/contract.txt";
+const char *work_path = "/home/ubuntu/SISOP-2-2026-IT-035/soal_2/work.log"; 
+
+void stop(int signal) {
+  FILE *fptr = fopen("/home/ubuntu/SISOP-2-2026-IT-035/soal_2/work.log", "a");
+
+  if (fptr != NULL) {
+     fprintf (fptr, "We really weren't meant to be together\n");
+     fclose(fptr);
+  }
+  running = 0;
+}
+```
