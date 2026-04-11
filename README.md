@@ -114,7 +114,10 @@ Setelah semua proses berhasil dijalankan, maka program akan mengeluarkan output 
 **The World Never Stops, Even When You Feel Tired**
 
 1. Langkah pertama adalah membuat program c dengan nama file `contract_daemon.c`.
-2. 
+
+2. Membuat program daemon untuk menulis log dan ditulis ke dalam file `work.log`
+
+- Pertama, terdapat fungsi `stop()` untuk mengeluarkan output ketika daemon dihentikan atau `running = 0`. Output tersebut ditulis ke dalam file `work.log` dengan menggunakan perintah `a` agar memperbarui isinya setiap ditulis.
 ```bash
 int running = 1;
 const char *contract_path = "/home/ubuntu/SISOP-2-2026-IT-035/soal_2/contract.txt";
@@ -130,3 +133,135 @@ void stop(int signal) {
   running = 0;
 }
 ```
+
+- Kemudian, terdapat fungsi `restore_contract` untuk mengembalikan isi file `contract.txt` dan menunjukkan timestamp ketika isi file diubah. Fungsi ini akan dipanggil ketika isi file `contract_txt` diubah. Langkah pertama adalah membuka file, kemudian jika berhasil dan isinya tidak kosong, maka akan mengeluarkan output dan timestamp. Timestamp di sini menggunakan localtime dengan command sebagai berikut. 
+```bash
+void restore_contract() {
+    FILE *f = fopen("/home/ubuntu/SISOP-2-2026-IT-035/soal_2/contract.txt", "w");
+    if (f != NULL) {
+        time_t now = time(NULL);
+        struct tm *t = localtime(&now);
+        fprintf(f, "\"A promise to keep going, even when unseen.\"\n");
+        fprintf(f, "\nrestored at: %04d-%02d-%02d %02d:%02d:%02d\n",
+                1900+t->tm_year, t->tm_mon+1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
+        fclose(f);
+    }
+}
+```
+
+- Selanjutnya di fungsi main, terdapat command untuk membuat proses menjadi daemon. Child process lanjut menjadi daemon dan akan berjalan di background.
+```bash
+int main() {
+  pid_t pid, sid;
+
+  pid = fork();
+
+  // Keluar saat fork gagal
+  if (pid < 0) {
+     exit(EXIT_FAILURE);
+  }
+
+// Keluar saat fork berhasil
+ if (pid > 0) {
+     exit(EXIT_SUCCESS);
+  }
+
+  umask(0);
+
+  sid = setsid();
+  if (sid < 0) {
+    exit(EXIT_FAILURE);
+  }
+
+  if ((chdir("/")) < 0) {
+    exit(EXIT_FAILURE);
+  }
+
+  close(STDIN_FILENO);
+  close(STDOUT_FILENO);
+  close(STDERR_FILENO);
+```
+
+- Untuk membuat isi dari program daemon:
+```bash
+srand(getpid());
+
+  int counter = 0;
+
+  char* status[] = {"[awake]", "[drifting]", "[numbness]"};
+
+  while(running) {
+
+  FILE* cek = fopen("/home/ubuntu/SISOP-2-2026-IT-035/soal_2/contract.txt", "r");
+
+   if (cek == NULL) {
+      FILE* fptr;
+   fptr = fopen("/home/ubuntu/SISOP-2-2026-IT-035/soal_2/contract.txt", "w");
+
+      if (fptr != NULL) {
+          time_t now = time(NULL);
+          struct tm *t = localtime(&now);
+
+          fprintf(fptr, "\"A promise to keep going, even when unseen.\"\n");
+
+          if (counter == 0) {
+              fprintf(fptr, "\ncreated at: %04d-%02d-%02d %02d:%02d:%02d\n",
+                 1900+t->tm_year, t->tm_mon+1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
+          }
+          else
+          {
+          fprintf(fptr, "\nrestored at: %04d-%02d-%02d %02d:%02d:%02d\n",
+                 1900+t->tm_year, t->tm_mon+1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
+          }
+          fclose (fptr);
+     }
+   }
+  else
+   {
+     fclose(cek);
+   }
+```
+Pada kode di atas, daemon harus menghasilkan status acak yang sudah ditentukan dalam variabel `status`. Fungsi dari `srand` adalah untuk mengacak status agar tidak sama setiap program dijalankan.
+Kemudian, terdapat loop yang dijalankan setiap detik. Pertama, file dibuka memakai mode `r` yaitu read. Jika file tidak ada, maka file akan dibuat. Jika tidak ada, file akan dioverwrite (menggunakan mode `w`). Setelah berhasil dibuka, program akan mencetak output. Ketika file baru pertama kali dijalankan, berarti akan mengeluarkan output created. Kemudian, untuk timestamp menggunakan localtime.
+
+- Untuk membaca isi file: 
+```bash
+char current[256] = {0};
+  FILE *check = fopen("/home/ubuntu/SISOP-2-2026-IT-035/soal_2/contract.txt", "r");
+  if (check != NULL) {
+      while (fgets(current + strlen(current), sizeof(current) - strlen(current), cek));
+      fclose(check);
+  }
+```
+Pada kode di atas, ketika file sudah berhasil dibuka dengan mode read, maka setiap baris yang terdapat di dalamnya di simpan ke variabel `current`. 
+
+- Untuk mengecek isi file `contract.txt` ada perubahan atau tidak.
+```bash
+ if (strstr(current, "\"A promise to keep going, even when unseen.\"") == NULL) {
+      FILE *log = fopen("/home/ubuntu/SISOP-2-2026-IT-035/soal_2/work.log", "a");
+      if (log != NULL) {
+          fprintf(log, "contract violated\n");
+          fclose(log);
+      }
+      restore_contract();
+  }
+```
+Pada kode di atas, isi dicek dengan menggunakan `strstr`. Jika berubah, maka program akan mencetak output bahwa isi file berubah dan akan memanggil fungsi `restore_contract()` untuk menambah output yang tadi ke dalam file.
+
+- Membuat isi file log beserta status acak.
+```bash
+if (counter % 5 == 0) {
+      FILE* fptr = fopen("/home/ubuntu/SISOP-2-2026-IT-035/soal_2/work.log", "a");
+
+      if (fptr != NULL) {
+         int index = rand() % 3;
+
+         fprintf(fptr, "still working... %s\n", status[index]);
+      fclose(fptr);
+      }
+  }
+counter++;
+sleep(1);
+```
+Pada kode di atas, isi dari variabel `index` adalah angka 0, 1, dan 2 sesuai indeks status. Kemudian, output akan dicetak beserta index yang dijalankan secara acak. Output ini akan dicetak setiap 5 detik. 
+
