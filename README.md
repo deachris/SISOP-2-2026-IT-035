@@ -110,6 +110,22 @@ Pada program di atas, perintah yang digunakan adalah dengan menjalankan perintah
 Pada kode di atas, perintah yang digunakan adalah `zip -r` untuk mengompres semua isi folder `brankas_kedai` ke dalam zip.
 Setelah semua proses berhasil dijalankan, maka program akan mengeluarkan output tanda berhasil.
 
+### OUTPUT
+- Isi File `buku_hutang.csv`:
+<img width="901" height="383" alt="image" src="https://github.com/user-attachments/assets/9896b187-f717-4b73-a5a2-2712d1083e24" />
+
+- Compile file untuk dieksekusi:
+<img width="902" height="102" alt="image" src="https://github.com/user-attachments/assets/fd38623d-d98b-4759-baff-df92db1b3d23" />
+
+- Program dijalankan dan file berhasil dibuat
+<img width="895" height="189" alt="image" src="https://github.com/user-attachments/assets/9941f303-a203-4669-aeea-440e87691836" />
+
+- Isi File `brankas_kedai`
+<img width="900" height="80" alt="image" src="https://github.com/user-attachments/assets/13355980-fd4c-42b9-ad02-61ca4d862c4d" />
+
+- Isi File `daftar_penunggak.txt`
+<img width="896" height="278" alt="image" src="https://github.com/user-attachments/assets/3d44de99-08d3-4d2e-badb-aa2672149b35" />
+
 ### Soal 2
 **The World Never Stops, Even When You Feel Tired**
 
@@ -265,7 +281,35 @@ sleep(1);
 ```
 Pada kode di atas, isi dari variabel `index` adalah angka 0, 1, dan 2 sesuai indeks status. Kemudian, output akan dicetak beserta index yang dijalankan secara acak. Output ini akan dicetak setiap 5 detik. 
 
-### Soal 2
+### OUTPUT
+- Compile File untuk dieksekusi:
+<img width="900" height="93" alt="image" src="https://github.com/user-attachments/assets/b7d01ba9-4131-467d-9fad-ee7c14896f8c" />
+
+- Program dijalankan:
+<img width="903" height="101" alt="image" src="https://github.com/user-attachments/assets/d4345ace-6130-488f-b9fe-2175cd6dfeef" />
+
+- Isi File `contract.txt`
+<img width="902" height="120" alt="image" src="https://github.com/user-attachments/assets/1a8f0a1b-7cce-4962-9673-34e2add88bc3" />
+
+- Isi File `work.log`
+<img width="901" height="446" alt="image" src="https://github.com/user-attachments/assets/36cb7274-813e-4c67-afd0-5763aa860c3f" />
+
+- Ketika isi file `contract.txt` diubah, misalnya sebagian isi teks dihapus:
+<img width="901" height="116" alt="image" src="https://github.com/user-attachments/assets/7b82d430-eb9b-4cd6-adfa-e6847077d879" />
+
+Maka, output di `work.log`:
+<img width="898" height="445" alt="image" src="https://github.com/user-attachments/assets/f1ee5070-01c1-4442-a13f-fdbaa036b1ad" />
+
+- Isi File `contract.txt` setelah isi file diubah
+<img width="899" height="116" alt="image" src="https://github.com/user-attachments/assets/d4de8a76-fe7a-4fa8-bfd8-0c2c6deb612b" />
+
+- Ketika daemon dihentikan:
+<img width="899" height="141" alt="image" src="https://github.com/user-attachments/assets/bbeb6781-c0b2-4a7f-953a-129743fa37c5" />
+
+- Ketika `contract.txt` dihapus, file dibuat kembali dan mengembalikan isi file seperti semula dan menunjukkkan timestamp restore:
+<img width="904" height="187" alt="image" src="https://github.com/user-attachments/assets/65c30a1e-275e-4ef9-9c57-47c82a4cd8f3" />
+
+### Soal 3
 **One Letter for Destiny**
 1. Membuat program daemon `angel.c`.
 
@@ -465,3 +509,29 @@ void wlog(char *process, char *status) {
 }
 ```
 Fungsi ini diperlukan untuk menulis nama proses beserta status dari program yang dijalankan. 
+Kemudian, timestamp saat ini juga akan keluar.
+
+### OUTPUT
+- Compile file untuk dieksekusi:
+<img width="898" height="93" alt="image" src="https://github.com/user-attachments/assets/4e37f035-9921-4e44-9dfb-ce51721abccb" />
+
+- Program dijalankan:
+<img width="902" height="143" alt="image" src="https://github.com/user-attachments/assets/385ab900-58d6-49d4-962b-d44cf3008a4d" />
+
+- Daemon:
+<img width="910" height="118" alt="image" src="https://github.com/user-attachments/assets/3b535875-dfa3-4c6d-a9d9-316ceafd5049" />
+
+- Isi File `LoveLetter.txt`
+<img width="905" height="120" alt="image" src="https://github.com/user-attachments/assets/943148ed-3684-4736-a7da-ae9fac794422" />
+
+- Isi Log File:
+<img width="899" height="689" alt="image" src="https://github.com/user-attachments/assets/35e05826-24e5-440c-a7d5-1195bb3ec01b" />
+
+- Decrypt:
+<img width="892" height="74" alt="image" src="https://github.com/user-attachments/assets/d5f50a8a-0a72-4c1d-96d9-987f05e6526e" />
+
+- Kill:
+<img width="896" height="75" alt="image" src="https://github.com/user-attachments/assets/27dbb24b-6d8a-414e-8870-9f5847e9c35b" />
+
+- Isi File `ethereal.log`
+<img width="896" height="430" alt="image" src="https://github.com/user-attachments/assets/a6d601aa-9890-46e6-8513-82c7516c587c" />
