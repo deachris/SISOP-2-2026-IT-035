@@ -265,3 +265,138 @@ sleep(1);
 ```
 Pada kode di atas, isi dari variabel `index` adalah angka 0, 1, dan 2 sesuai indeks status. Kemudian, output akan dicetak beserta index yang dijalankan secara acak. Output ini akan dicetak setiap 5 detik. 
 
+### Soal 2
+**One Letter for Destiny**
+1. Membuat program daemon `angel.c`.
+
+- Membuat proses daemon untuk menjalankan command `-daemon` dari terminal.
+```bash
+  if(strcmp(argv[1], "-daemon") == 0)
+ {
+  pid_t pid, sid;
+  // FORK
+  pid = fork();
+
+  if (pid < 0) {
+    exit(EXIT_FAILURE);
+  }
+
+  if (pid > 0) {
+    exit(EXIT_SUCCESS);
+  }
+
+  umask(0);
+
+  sid = setsid();
+  if (sid < 0) {
+    exit(EXIT_FAILURE);
+  }
+
+  if ((chdir(".")) < 0) {
+    exit(EXIT_FAILURE);
+  }
+
+  close(STDIN_FILENO);
+  close(STDOUT_FILENO);
+  close(STDERR_FILENO);
+```
+Kode di atas berisi kode program daemon untuk menjalankan daemon. 
+
+- Program harus mengubah nama proses dari daemon yang berjalan.
+```bash
+  prctl(PR_SET_NAME, "maya", 0, 0, 0);
+  memset(argv[0], 0, strlen(argv[0]));
+  strcpy(argv[0], "maya");
+```
+Kode di atas berfungsi untuk mengubah nama proses menjadi "maya". Nama proses yang lama dihapus dengan perintah `memset` yaitu mengosongkan string dari `argv[0]`. Setelah dihapus, nama proses pun diganti dengan "maya" dengan perintah `strcpy`.
+
+- Program untuk menjalankan perulangan mencetak kalimat takdir yang dipilih dari daftar kalimat. 
+```bash
+  char *kalimat[] ={"1. aku akan fokus pada diriku sendiri", "2. aku mencintaimu dari sekarang hingga selamanya", "3. aku akan menjauh darimu, hingga takdir mempertemukan kita di versi kita yang terbaik.", "4. kalau aku dilahirkan kembali, aku tetap akan terus menyayangimu"};
+
+  int jumlah = sizeof(kalimat) / sizeof(kalimat[0]); // MENGHITUNG JUMLAH KALIMAT
+
+  wlog("daemon", "RUNNING"); // DAEMON BERJALAN
+
+  while (1) {
+    FILE* fptr = fopen("LoveLetter.txt", "w");
+    if (fptr != NULL) {
+       int index = rand() % jumlah;
+       fprintf(fptr, "%s", kalimat[index]);
+       fclose(fptr);
+       wlog("secret", "SUCCESS");
+    }
+    else
+    {
+      wlog("secret", "ERROR");
+    }
+
+   char buffer[1024] = {0};
+   FILE *fr = fopen("LoveLetter.txt", "r");
+   if (fr != NULL) {
+      fgets(buffer, sizeof(buffer), fr);
+      fclose(fr);
+   }
+
+   char *encoded = base64_encode(buffer);
+```
+Pada kode di atas, file `LoveLetter.txt` dibuat jika belum ada dengan mode overwrite (jika sudah berisi, akan ditimpa dengan yang baru). Setelah berhasil dibuat, maka program akan memilih kalimat random dan mencetaknya di dalam file tersebut. Kemudian, output bahwa fitur secret sukses dijalankan akan dicetak di bawahnya. Hasil dari secret ini adalah kalimat asli yang diacak dari daftar kalimat. Namun, jika gagal, akan mengeluarkan output "ERROR". 
+Proses encoding dari kode ini, kalimat asli yang sudah dicetak pada file dibaca dan disimpan ke dalam variabel `buffer`, kemudian diencode dengan memanggil fungsi `base64_encode`.
+Setelah diencode, kalimat akan ditulis kembali ke dalam file dengan kode sebagai berikut.
+```bash
+FILE *fw = fopen("LoveLetter.txt", "w");
+   if (fw != NULL) {
+      fprintf(fw, "%s\n", encoded);
+      fclose(fw);
+      wlog("surprise", "SUCCESS");
+   }
+   else
+   {
+      wlog("surprise", "ERROR");
+   }
+
+   free(encoded);
+```
+Jika proses berhasil, maka program akan mencetak bahwa fitur surprise sukses dijalankan. Hasil dari surprise ini adalah kalimat yang sudah dienkripsi menggunakan metode base64 sebelumnya.
+
+2. Metode base64
+
+Metode base64 adalah metode untuk mengenkripsi isi file `LoveLetter.txt` menjadi data biner yang dibuat ke dalam 64 bentuk karakter teks. 
+```bash
+char base64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  // encode
+  char* base64_encode(char* plain) {
+    char counts = 0;
+    char buffer[3];
+    char* cipher = malloc(strlen(plain) * 4/3 + 4);
+    int i = 0, c = 0;
+
+    for(i = 0; plain[i] != '\0'; i++) {
+       buffer[counts++] = plain[i];
+       if(counts == 3) {
+         cipher[c++] = base64[buffer[0] >> 2];
+         cipher[c++] = base64[((buffer[0] & 0x03) << 4) + (buffer[1] >> 4)];
+         cipher[c++] = base64[((buffer[1] & 0x0f) << 2) + (buffer[2] >> 6)];
+         cipher[c++] = base64[buffer[2] & 0x3f];
+         counts = 0;
+      }
+   }
+
+  if(counts > 0) {
+        cipher[c++] = base64[buffer[0] >> 2];
+        if(counts == 1) {
+            cipher[c++] = base64[(buffer[0] & 0x03) << 4];
+            cipher[c++] = '=';
+        }
+        else
+        {// if counts == 2
+            cipher[c++] = base64[((buffer[0] & 0x03) << 4) + (buffer[1] >> 4)];
+            cipher[c++] = base64[(buffer[1] & 0x0f) << 2];
+        }
+        cipher[c++] = '=';
+    }
+
+    cipher[c] = '\0';
+    return cipher;
+}
+```
