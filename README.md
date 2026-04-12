@@ -361,7 +361,7 @@ Jika proses berhasil, maka program akan mencetak bahwa fitur surprise sukses dij
 
 2. Metode base64
 
-Metode base64 adalah metode untuk mengenkripsi isi file `LoveLetter.txt` menjadi data biner yang dibuat ke dalam 64 bentuk karakter teks. 
+Metode base64 adalah metode untuk mengenkripsi isi file `LoveLetter.txt` menjadi data biner yang dibuat ke dalam 64 bentuk karakter (sampai index ke-63). Tiga karakter (24 bit) dipecah menjadi 4 karakter sama banyak, kemudian jika terdapat karakter sisa yang tidak berjumlah 4, maka dilakukan padding dengan menambahkan karakter `=` di akhir.
 ```bash
 char base64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
   // encode
@@ -396,7 +396,72 @@ char base64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+
         cipher[c++] = '=';
     }
 
+
+
     cipher[c] = '\0';
     return cipher;
 }
 ```
+
+- Proses Decode untuk fitur `-decrypt`:
+Pertama, dilakukan pengecekan panjang harus berjumlah kelipatan 4. Jika jumlahnya pas, maka dilakukan alokasi memori dari 4 karakter menjadi 3 byte seperti semula. Program akan mencari posisi karakter dari tabel base64 untuk mengembalikan kalimat asli dan digabungkan seluruhnya. Hasil dari decoding disimpan ke variabel `plain`.
+```bash
+char* base64_decode(char* cipher) {
+    int counts = 0;
+    int buffer[4];
+    int length = strlen(cipher);
+    int p = 0;
+
+    if(length % 4 != 0) {
+      return NULL;
+    }
+
+    char *plain = malloc(length * 3 / 4 + 1);
+    if (!plain) return NULL;
+
+    for(int i = 0; i < length; i++) {
+       if(cipher[i] == '=') {
+          buffer[counts++] = 64;
+        }
+        else
+        {
+        int k;
+        for(k = 0 ; k < 64 && base64[k] != cipher[i]; k++);
+        if(k == 64) {
+           free(plain);
+           return NULL;
+        }
+
+        buffer[counts++] = k;
+        }
+        if(counts == 4) {
+            plain[p++] = (buffer[0] << 2) + (buffer[1] >> 4);
+            if(buffer[2] != 64)
+                plain[p++] = (buffer[1] << 4) + (buffer[2] >> 2);
+            if(buffer[3] != 64)
+                plain[p++] = (buffer[2] << 6) + buffer[3];
+            counts = 0;
+        }
+    }
+
+    plain[p] = '\0';
+    return plain;
+}
+```
+
+3. Fungsi untuk menyimpan aktivitas program ke dalam file `ethereal.log`.
+```bash
+void wlog(char *process, char *status) {
+  FILE *f = fopen("ethereal.log", "a");
+  if (f == NULL) return;
+
+  time_t now = time(NULL);
+  struct tm *t = localtime(&now);
+
+  fprintf(f, "[%02d:%02d:%04d]-[%02d:%02d:%02d]_%s_%s\n",
+        t->tm_mday, t->tm_mon+1, 1900+t->tm_year, t->tm_hour, t->tm_min, t->tm_sec, process, status);
+
+  fclose(f);
+}
+```
+Fungsi ini diperlukan untuk menulis nama proses beserta status dari program yang dijalankan. 
