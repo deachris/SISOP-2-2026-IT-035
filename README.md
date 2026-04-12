@@ -493,6 +493,24 @@ char* base64_decode(char* cipher) {
 }
 ```
 
+- Proses kill untuk menghentikan daemon:
+Pada kode ini, perintah akan dibaca dari argumen 1 yaitu `-kill` kemudian digunakan `system()` untuk menjalankan pkill.
+```bash
+  if (strcmp(argv[1], "-kill") == 0) {
+
+    int hasil = system("pkill maya");
+
+    if (hasil == 0) {
+        wlog("kill", "SUCCESS");
+        printf("Daemon dihentikan.\n");
+    } else {
+        wlog("kill", "ERROR");
+        printf("Daemon gagal dihentikan.\n");
+    }
+
+    return 0;
+```
+
 3. Fungsi untuk menyimpan aktivitas program ke dalam file `ethereal.log`.
 ```bash
 void wlog(char *process, char *status) {
